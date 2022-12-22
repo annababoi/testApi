@@ -13,7 +13,10 @@ module.exports = {
 
             await OAuth.create({...tokenPair, _user_id: user._id})
 
-            res.json(user);
+            res.json({
+                user,
+                tokenPair
+            });
         } catch (e) {
             next(e)
         }
@@ -37,40 +40,37 @@ module.exports = {
             res.json({
                 ...tokenPair
             });
-
         } catch (e) {
             next(e)
         }
     },
+
     info: async (req, res, next) => {
         try {
-            res.json(
-                req.user
-            );
+            res.json({
+                userID: req.user.id,
+                idType: req.user.id_type
+            });
         } catch (e) {
             next(e)
         }
     },
+
     logout: async (req, res, next) => {
         try {
             const {accessToken} = req.tokenInfo;
+            const {all} = req.query;
+            if (all) {
+                const {_user_id} = req.tokenInfo;
+                console.log(req.tokenInfo)
+                await OAuth.deleteMany({_user_id})
 
-            await OAuth.deleteOne({accessToken})
-
-            res.sendStatus(204);
-
-        } catch (e) {
-            next(e)
-        }
-    },
-
-    logoutAll: async (req, res, next) => {
-        try {
-            const {_user_id} = req.tokenInfo;
-
-            await OAuth.deleteMany({_user_id})
-
-            res.sendStatus(204);
+                res.sendStatus(204);
+                console.log(req.tokenInfo)
+            } else {
+                await OAuth.deleteOne({accessToken})
+                res.sendStatus(204);
+            }
         } catch (e) {
             next(e)
         }

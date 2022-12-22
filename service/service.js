@@ -2,14 +2,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const {ACCESS_SECRET, REFRESH_SECRET} = require("../config/config");
+const {CustomError} = require("../error/error");
 const User = require('../dataBase/User');
+
 
 module.exports = {
     create: async (userInfo) => {
-        return User.create(userInfo);
-    },
-    info: async (filter = {}) => {
-        return User.findOne(filter);
+        return User.create(userInfo)
     },
 
     hashPassword: (password) => bcrypt.hash(password, 10),
@@ -18,7 +17,7 @@ module.exports = {
         const isPasswordSame = await bcrypt.compare(password, hashPassword);
 
         if (!isPasswordSame) {
-            throw new Error ('wrong password');
+            throw new CustomError ('Wrong password', 401);
         }
     },
 
@@ -31,6 +30,7 @@ module.exports = {
             refreshToken
         }
     },
+
     checkTokens: (token = '', tokenType = 'accessToken') => {
         try {
             let secret = '';
@@ -41,7 +41,7 @@ module.exports = {
             return jwt.verify(token, secret);
 
         } catch (e) {
-            throw new Error('Token not valid')
+            throw new CustomError('Token not valid', 401)
         }
-    },
+    }
 }

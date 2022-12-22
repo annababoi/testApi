@@ -13,20 +13,15 @@ router.post('/signup', controller.signup);
 
 router.get(
     '/info/:userId',
+    middleware.checkAccessToken,
     middleware.getUserDynamically('userId', 'params', '_id'),
     controller.info
 );
 
 router.get(
-    '/logout/all=false',
+    '/logout',
     middleware.checkAccessToken,
     controller.logout
-);
-
-router.get(
-    '/logout/all=true',
-    middleware.checkAccessToken,
-    controller.logoutAll
 );
 
 module.exports = router;
